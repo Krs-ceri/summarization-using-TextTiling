@@ -11,6 +11,9 @@ import shutil
 import nltk
 import math
 import re
+import pylab
+from nltk.corpus import stopwords
+from nltk.tokenize import TextTilingTokenizer
 try: 
     import numpy
 except ImportError:
@@ -21,19 +24,55 @@ class bcolors:
     ENDC = '\033[0m'
     OK = '\033[92m'
 
+
+def outputSystem(directory):
+    print("hello")
+    t = "{}/tiling/".format(directory)
+    res = "{}/output".format(directory)
+    if os.path.exists(res):
+        shutil.rmtree(res)
+    os.mkdir(res)
+    for filename in os.listdir(t):
+        current = open(directory+"/tiling/"+filename, "r")
+        lia = open(directory +"/"+ filename, "r" )
+        output = open(directory + "/tmp/"  +  filename, "w")
+        lenght = []
+        paragraph = []
+        #for content
+        
+        current.close()
+        lia.close()
+        output.close()              
+        
+        
 def TextTiling(directory):
     '''
-        tokenize and return segment
+        tokenize and return text tiled txt
     '''
     t = "{}/tmp/".format(directory)
-    from nltk.tokenize import TextTilingTokenizer
-    ttt = nltk.tokenize.TextTilingTokenizer(demo_mode=True)
-    for filename in os.listdir(t):
-        with open(directory+"/tmp/"+filename, "r") as f:
-            s, ss, d, tokens = ttt.tokenize(f)
-            print(tokens)
-    #TODO
     
+    tiling = "{}/tiling".format(directory)
+    if os.path.exists(tiling):
+        shutil.rmtree(tiling)
+    os.mkdir(tiling)    
+    for filename in os.listdir(t):
+        current = open(directory+"/tmp/"+filename, "r")
+             
+        res = "{0}/tiling/".format(directory)
+        destination = open(res + filename, "w")
+            
+        ttt = TextTilingTokenizer(w=35,k=5)
+        print("  " + filename )
+        #token = nltk.word_tokenize(t)
+        
+        #x=nltk.word_tokenize(t)
+        tokens = ttt.tokenize(current.read())
+        #text = nltk.Text(tokens)
+        #print(tokens)
+        for token in tokens:
+            destination.write(token)
+        current.close()
+        destination.close() 
     
 def nl2text(source,destination):
     '''
@@ -43,15 +82,21 @@ def nl2text(source,destination):
     i = []
     for line in source:
         if cpt == 0:
-            print(bcolors.OK + line + bcolors.ENDC)
+            print("[INFO]: " + bcolors.OK + line.replace("-1\t# ","") + bcolors.ENDC)
         else:
             i = line.split("\t")
             myString = i[4]
-            myString = myString.replace(" .","")
-            myString = myString.replace(" ,","")
+            token = nltk.word_tokenize(myString)
+            '''
+            if(len(token) < 20 ):
+                myString = myString.replace("\n"," ")
+            else:'''    
+            myString = myString.replace(" ."," .\n\n")
+            #myString = myString.replace(",","")
             destination.write(myString)    
         cpt = cpt + 1
     return True
+
 
 def get_data(directory):
     '''
@@ -63,10 +108,10 @@ def get_data(directory):
     os.mkdir(tmp)
     for filename in os.listdir(directory):
         if filename.endswith('.txt') :
-            newname = filename.replace('_start_segmented','_text-tiling')
+            #newname = filename.replace('_start_segmented','_text-tiling')
             
             remote = "{0}/tmp/".format(directory)
-            destination = open(remote+newname, "w")
+            destination = open(remote+filename, "w")
             
             origin = "{0}/".format(directory)
             source =  open(origin+filename, "r")
@@ -75,7 +120,7 @@ def get_data(directory):
             nl2text(source, destination)
             source.close()
             destination.close()    
-
+    return True
 current = os.getcwd()
 if len(sys.argv) == 1:
     print("No argument provided !")
@@ -86,6 +131,8 @@ if not os.path.exists(directory):
     print(bcolors.FAIL + "arg not found" + bcolors.ENDC)
     sys.exit(2)
 else:
-    get_data(directory)
-    TextTiling(directory)
+    if(get_data(directory) == True):
+        print(bcolors.FAIL + "\n       Text-tiling\n"+ bcolors.ENDC)         
+        TextTiling(directory)
+   
    
