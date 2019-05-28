@@ -28,49 +28,68 @@ class bcolors:
 def outputSystem(directory):
     print("hello")
     t = "{}/tiling/".format(directory)
-    res = "{}/output".format(directory)
+    res = "{}/output/".format(directory)
     if os.path.exists(res):
         shutil.rmtree(res)
     os.mkdir(res)
     for filename in os.listdir(t):
+        #newname = filename.replace('_start_segmented','_text-tiling')
+
         current = open(directory+"/tiling/"+filename, "r")
-        lia = open(directory +"/"+ filename, "r" )
-        output = open(directory + "/tmp/"  +  filename, "w")
+        #lia = open(directory +"/"+ filename, "r" )
+        output = open(res  +  filename, "w")
+        
+        lec = current.read()
+        count = 0
+        
         lenght = []
         paragraph = []
-        #for content
-        
+        paragraph = lec.split("\n\n") 
+        for i in paragraph:
+            #print(i)
+            lenght = i.split(" . ")
+            if count == 0:
+                count = count + len(lenght)
+                output.write(str(count-1))
+            else:
+                count = count + len(lenght)
+                output.write("\n"+str(count-1))
+        ciunt=count-1
         current.close()
-        lia.close()
+        #lia.close()
         output.close()              
-        
+    print("done")
         
 def TextTiling(directory):
     '''
         tokenize and return text tiled txt
     '''
-    t = "{}/tmp/".format(directory)
+    tmp = "{}/tmp/".format(directory)
     
-    tiling = "{}/tiling".format(directory)
+    tiling = "{}/tiling/".format(directory)
     if os.path.exists(tiling):
         shutil.rmtree(tiling)
-    os.mkdir(tiling)    
-    for filename in os.listdir(t):
-        current = open(directory+"/tmp/"+filename, "r")
-             
-        res = "{0}/tiling/".format(directory)
-        destination = open(res + filename, "w")
-            
-        ttt = TextTilingTokenizer(w=35,k=5)
-        print("  " + filename )
-        #token = nltk.word_tokenize(t)
+    os.mkdir(tiling)
+    i = 0    
+    for filename in os.listdir(tmp):
+        current = open(tmp+filename, "r")
+         
+        destination = open(tiling + filename, "w")
+           
+        ttt = TextTilingTokenizer(w=40,k=15)
+        i=i+1
+        print(i ,"/",len(os.listdir(tmp)))
+        print("  " + filename)
+           #token = nltk.word_tokenize(t)
         
         #x=nltk.word_tokenize(t)
         tokens = ttt.tokenize(current.read())
         #text = nltk.Text(tokens)
         #print(tokens)
         for token in tokens:
-            destination.write(token)
+            paragraph = token.replace("\n", " ")
+            destination.write(paragraph)
+            destination.write("\n\n") 
         current.close()
         destination.close() 
     
@@ -134,5 +153,6 @@ else:
     if(get_data(directory) == True):
         print(bcolors.FAIL + "\n       Text-tiling\n"+ bcolors.ENDC)         
         TextTiling(directory)
+        outputSystem(directory)
    
    
