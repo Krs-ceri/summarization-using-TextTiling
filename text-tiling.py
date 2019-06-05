@@ -10,88 +10,108 @@ import os.path
 import shutil
 import nltk
 import math
-import re
-import pylab
 from nltk.corpus import stopwords
 from nltk.tokenize import TextTilingTokenizer
-try: 
-    import numpy
-except ImportError:
-    pass
+
 
 class bcolors:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
     OK = '\033[92m'
-
+    UNDERLINE = '\033[4m'
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    WARNING = '\033[93m'
+    
+    
+    
+def CountNbLine(filename):
+    '''
+        Count and return the numbers of sentence in one file            
+    '''
+    count = 0
+    for line in filename:
+        count += 1
+    return count-2
 
 def outputSystem(directory):
-    print("hello")
+    '''
+        output(txt) to comput and evaluate 
+    '''
     t = "{}/tiling/".format(directory)
     res = "{}/output/".format(directory)
     if os.path.exists(res):
         shutil.rmtree(res)
     os.mkdir(res)
+    print(bcolors.OKBLUE + "process text " +bcolors.ENDC ,len(os.listdir(t)))
+    
     for filename in os.listdir(t):
-        #newname = filename.replace('_start_segmented','_text-tiling')
-
+        #open files with the same filename in others directory
         current = open(directory+"/tiling/"+filename, "r")
-        #lia = open(directory +"/"+ filename, "r" )
         output = open(res  +  filename, "w")
         
-        lec = current.read()
-        count = 0
+        lia = open(directory + "/" + filename, "r")
+        maxi = CountNbLine(lia)
         
+        count = -1
         lenght = []
         paragraph = []
-        paragraph = lec.split("\n\n") 
-        for i in paragraph:
-            #print(i)
-            lenght = i.split(" . ")
-            if count == 0:
-                count = count + len(lenght)
-                output.write(str(count-1))
-            else:
-                count = count + len(lenght)
-                output.write("\n"+str(count-1))
-        ciunt=count-1
-        current.close()
-        #lia.close()
-        output.close()              
-    print("done")
+        paragraph = current.read().split("\n\n") 
+        #paragraph = paragraph[:len(paragraph)-1]
         
-def TextTiling(directory):
+        for i in paragraph:
+            #count the numbers of ' .' to operate the numbers of sentences
+            lenght = i.split(" .")
+                     
+            if count == -1:
+                #case of the first sentence
+                count = count + len(lenght)
+                output.write(str(count))
+            else:
+                if count + len(lenght) < maxi:
+                    #others with result under maximum calculated with original file
+                    count = count + len(lenght)
+                    output.write("\n"+str(count))
+        output.write("\n"+str(maxi))
+        current.close()
+        output.close()              
+    print(bcolors.OKBLUE +  "processed output " + bcolors.ENDC,len(os.listdir(res)))
+    print("done" )
+    shutil.rmtree(t)    
+    
+    
+def TextTiling(directory, word, sentence):
     '''
-        tokenize and return text tiled txt
+        tokenize and return text tiled txt separated by '\n\n'
     '''
     tmp = "{}/tmp/".format(directory)
-    
     tiling = "{}/tiling/".format(directory)
     if os.path.exists(tiling):
         shutil.rmtree(tiling)
     os.mkdir(tiling)
-    i = 0    
+    
+    j = 0        
+    print(bcolors.HEADER + "\n       Text-tiling\n"+ bcolors.ENDC)
+    
     for filename in os.listdir(tmp):
+        #open files with the same filename in others directory    
         current = open(tmp+filename, "r")
-         
         destination = open(tiling + filename, "w")
-           
-        ttt = TextTilingTokenizer(w=40,k=15)
-        i=i+1
-        print(i ,"/",len(os.listdir(tmp)))
-        print("  " + filename)
-           #token = nltk.word_tokenize(t)
+        #function and parameters needed for texttiling    
+        ttt = TextTilingTokenizer(w=int(word), k=int(sentence))
+        j=j+1
+        print("["+ str(j) + "/"+ str(len(os.listdir(tmp))) + "] :" + bcolors.WARNING + filename + bcolors.ENDC)
         
         #x=nltk.word_tokenize(t)
         tokens = ttt.tokenize(current.read())
-        #text = nltk.Text(tokens)
-        #print(tokens)
         for token in tokens:
+            #for token, write in file without '\n'
             paragraph = token.replace("\n", " ")
             destination.write(paragraph)
             destination.write("\n\n") 
         current.close()
         destination.close() 
+    shutil.rmtree(tmp)
     
 def nl2text(source,destination):
     '''
@@ -100,18 +120,11 @@ def nl2text(source,destination):
     cpt = 0
     i = []
     for line in source:
-        if cpt == 0:
-            print("[INFO]: " + bcolors.OK + line.replace("-1\t# ","") + bcolors.ENDC)
-        else:
+        if cpt != 0:
             i = line.split("\t")
             myString = i[4]
-            token = nltk.word_tokenize(myString)
-            '''
-            if(len(token) < 20 ):
-                myString = myString.replace("\n"," ")
-            else:'''    
+            token = nltk.word_tokenize(myString)    
             myString = myString.replace(" ."," .\n\n")
-            #myString = myString.replace(",","")
             destination.write(myString)    
         cpt = cpt + 1
     return True
@@ -125,34 +138,54 @@ def get_data(directory):
     if os.path.exists(tmp):
         shutil.rmtree(tmp)
     os.mkdir(tmp)
+    
+    print(bcolors.OKBLUE + "process data " +bcolors.ENDC,len(os.listdir(directory)))
     for filename in os.listdir(directory):
         if filename.endswith('.txt') :
-            #newname = filename.replace('_start_segmented','_text-tiling')
-            
+            #create in tmp a txt
             remote = "{0}/tmp/".format(directory)
             destination = open(remote+filename, "w")
-            
+            #open original
             origin = "{0}/".format(directory)
             source =  open(origin+filename, "r")
-            
-            
+            #call for each files to transform
             nl2text(source, destination)
+            #close files
             source.close()
-            destination.close()    
+            destination.close()
+                
+    print( bcolors.OKBLUE +  "processed text " + bcolors.ENDC,len(os.listdir(tmp)))
     return True
-current = os.getcwd()
+
+
 if len(sys.argv) == 1:
     print("No argument provided !")
+    '''
+    if no argument, default directory will be used
+    '''
     directory = "srt/trs"
-else:    
-    directory = sys.argv[1]
+    word = 35
+    sentence = 12
+else:
+    if len(sys.argv) == 2:    
+        directory = sys.argv[1]
+        word = 35
+        sentence = 12
+    elif len(sys.argv) == 4:
+        directory = sys.argv[1]
+        word = sys.argv[2]
+        sentence = sys.argv[3]
+        print(word+" "+sentence)
+    else:
+        print(bcolors.FAIL + "arg not found" + bcolors.ENDC)
+        sys.exit(2)  
 if not os.path.exists(directory):
     print(bcolors.FAIL + "arg not found" + bcolors.ENDC)
     sys.exit(2)
 else:
-    if(get_data(directory) == True):
-        print(bcolors.FAIL + "\n       Text-tiling\n"+ bcolors.ENDC)         
-        TextTiling(directory)
+    if(get_data(directory) == True):         
+        TextTiling(directory, word, sentence)
         outputSystem(directory)
-   
+    else:
+        print("Data not found !")   
    
