@@ -38,8 +38,8 @@ def outputSystem(directory):
     '''
         output(txt) to comput and evaluate 
     '''
-    t = "{}/tiling/".format(directory)
-    res = "{}/output/".format(directory)
+    t = "{}tiling/".format(directory)
+    res = "{}output/".format(directory)
     if os.path.exists(res):
         shutil.rmtree(res)
     os.mkdir(res)
@@ -47,10 +47,10 @@ def outputSystem(directory):
     
     for filename in os.listdir(t):
         #open files with the same filename in others directory
-        current = open(directory+"/tiling/"+filename, "r")
+        current = open(t+filename, "r")
         output = open(res  +  filename, "w")
         
-        lia = open(directory + "/" + filename, "r")
+        lia = open(directory + filename, "r")
         maxi = CountNbLine(lia)
         
         count = -1
@@ -76,7 +76,6 @@ def outputSystem(directory):
         current.close()
         output.close()              
     print(bcolors.OKBLUE +  "processed output " + bcolors.ENDC,len(os.listdir(res)))
-    print("done" )
     shutil.rmtree(t)    
     
     
@@ -84,8 +83,8 @@ def TextTiling(directory, word, sentence):
     '''
         tokenize and return text tiled txt separated by '\n\n'
     '''
-    tmp = "{}/tmp/".format(directory)
-    tiling = "{}/tiling/".format(directory)
+    tmp = "{}tmp/".format(directory)
+    tiling = "{}tiling/".format(directory)
     if os.path.exists(tiling):
         shutil.rmtree(tiling)
     os.mkdir(tiling)
@@ -134,7 +133,7 @@ def get_data(directory):
     '''
     get data from result and change them for text-tiling
     '''
-    tmp = "{}/tmp".format(directory)
+    tmp = "{}tmp".format(directory)
     if os.path.exists(tmp):
         shutil.rmtree(tmp)
     os.mkdir(tmp)
@@ -143,11 +142,11 @@ def get_data(directory):
     for filename in os.listdir(directory):
         if filename.endswith('.txt') :
             #create in tmp a txt
-            remote = "{0}/tmp/".format(directory)
+            remote = "{0}tmp/".format(directory)
             destination = open(remote+filename, "w")
             #open original
-            origin = "{0}/".format(directory)
-            source =  open(origin+filename, "r")
+            
+            source =  open(directory+filename, "r")
             #call for each files to transform
             nl2text(source, destination)
             #close files
@@ -163,7 +162,7 @@ if len(sys.argv) == 1:
     '''
     if no argument, default directory will be used
     '''
-    directory = "srt/trs"
+    directory = "srt/trs/"
     word = 35
     sentence = 12
 else:
