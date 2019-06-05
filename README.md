@@ -21,11 +21,11 @@ $ python3
 
 #### How to use :
 to launch, just enter program and your directory to change : 
-    ```console
-    $ python3 texttiling.py   
-    $ python3 texttiling.py Papers
-    $ python3 texttiling.py Papers 35 12     
-    ```
+```console
+$ python3 texttiling.py   
+$ python3 texttiling.py Papers
+$ python3 texttiling.py Papers 35 12     
+```
 By default, a directory "srt/trs" is launched when no argument provided with 35 for words in sentence and 12 average sentences in blocks
 Need 
 Treated files go in Directory/output.
