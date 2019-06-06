@@ -47,8 +47,9 @@ def outputSystem(directory):
     
     for filename in os.listdir(t):
         #open files with the same filename in others directory
+        name = filename.replace("_segmented","_segmented_borders")
         current = open(t+filename, "r")
-        output = open(res  +  filename, "w")
+        output = open(res  +  name, "w")
         
         lia = open(directory + filename, "r")
         maxi = CountNbLine(lia)
