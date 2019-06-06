@@ -156,7 +156,7 @@ def get_data(directory):
                 
     print( bcolors.OKBLUE +  "processed text " + bcolors.ENDC,len(os.listdir(tmp)))
     return True
-
+#---------------------------------------------Main 
 
 if len(sys.argv) == 1:
     print("No argument provided !")
